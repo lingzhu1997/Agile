@@ -13,12 +13,13 @@ from flask_login import login_required
 from .models import User
 app = Flask(__name__)
 
-app.config['MONGO_DBNAME'] = 'foodb'
-app.config['MONGO_URI'] = 'mongodb://localhost:27017/foodb'
+app.config['MONGO_DBNAME'] = "foodb"
+app.config['MONGO_URI'] = "mongodb+srv://admin:1234@foodb.6gnje.mongodb.net/foodb?retryWrites=true&w=majority"
 
-mongo = PyMongo(app)
+
 app.config['SECRET_KEY'] = 'enydM2ANhdcoKwdVa0jWvEsbPFuQpMjf' # Create your own.
 app.config['SESSION_PROTECTION'] = 'strong'
+mongo = PyMongo(app)
 
 
 # Use Flask-Login to track current user in Flask's session.
@@ -107,13 +108,6 @@ def error_not_found(error):
 def error_not_found(error):
   return render_template('error/not_found.html'), 404  
 
-
-
-
-
-
-
-
 @login_manager.user_loader
 def load_user(user_id):
   """Flask-Login hook to load a User instance from ID."""
@@ -131,7 +125,9 @@ def login():
   if request.method == 'POST' and form.validate():
     username = form.username.data.lower().strip()
     password = form.password.data.lower().strip()
+    print(username,password)
     user = mongo.db.users.find_one({"username": form.username.data})
+    print(user)
     if user and User.validate_login(user['password'], form.password.data):  
       user_obj = User(user['username'])
       login_user(user_obj)
