@@ -9,6 +9,8 @@ import bson
 from flask_login import LoginManager, current_user
 from flask_login import login_user, logout_user
 from flask_login import login_required
+from flask import Flask, make_response,request 
+
 
 from .models import User
 app = Flask(__name__)
@@ -54,24 +56,21 @@ def product_delete(product_id):
 @app.route( 
   '/products/<product_id>/edit/',
   methods=['GET', 'POST'])
+
+
+@app.route('/products/<product_id>/edit/', methods=['GET', 'POST'])
 @login_required
 def product_edit(product_id):
-  product = mongo.db.products.find_one({ "_id": ObjectId(product_id) })
-  
-  form = ProductForm(formdata = request.form, obj=product)
-
-  if product:
-   
+    """Provide HTML form to edit a given product."""
+    product = mongo.db.products.find_one({"_id": ObjectId(product_id)})
+    if product is None:
+        abort(404)
+    form = ProductForm(request.form, data=product)
     if request.method == 'POST' and form.validate():
-      
-      newvalues = { "$set": form.data}
-      mongo.db.products.update_one(product,newvalues)
-      
-      return redirect(url_for('products_list'))
-    return render_template('product/edit.html',product=product, form=form)
-  
-
-  
+        mongo.db.products.replace_one(product, form.data)
+        # Success. Send the user back to the detail view.
+        return redirect(url_for('products_list'))
+    return render_template('product/edit.html', form=form)
 
 
 
@@ -142,3 +141,38 @@ def logout():
   logout_user()
   return redirect(url_for('products_list'))
 
+@app.route('/string/')
+def return_string():
+  dump = dump_request_detail(request)
+  return 'Hello, world!'
+
+@app.route('/object/')
+def return_object():
+  dump = dump_request_detail(request)
+  headers = {'Content-Type': 'text/plain'}
+  return make_response(Response('Hello, world! \n' + dump, status=200,
+    headers=headers))
+
+@app.route('/tuple/<path:resource>')
+def return_tuple(resource):
+  dump = dump_request_detail(request)
+  return 'Hello, world! \n' + dump, 200, {'Content-Type':
+    'text/plain'}
+
+
+def dump_request_detail(request):
+  request_detail = """
+## Request INFO ##
+request.endpoint: {request.endpoint}
+request.method: {request.method}
+request.view_args: {request.view_args}
+request.args: {request.args}
+request.form: {request.form}
+request.user_agent: {request.user_agent}
+request.files: {request.files}
+request.is_xhr: {request.is_xhr}
+
+## request.headers ##
+{request.headers}
+  """.format(request=request).strip()
+  return request_detail
