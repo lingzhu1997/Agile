@@ -11,7 +11,11 @@ from flask_login import login_user, logout_user
 from flask_login import login_required
 from flask import Flask, make_response,request 
 
+sys.path.append(os.path.expanduser("fooApp")) # append to path to import modules
+from forms import ProductForm, LoginForm
+from models import User
 
+app = Flask(__name__, static_url_path='/static')
 from .models import User
 app = Flask(__name__)
 
@@ -19,8 +23,8 @@ app.config['MONGO_DBNAME'] = "foodb"
 app.config['MONGO_URI'] = "mongodb+srv://admin:1234@foodb.6gnje.mongodb.net/foodb?retryWrites=true&w=majority"
 mongo = PyMongo(app)
 
-#app.config['SECRET_KEY'] = 'enydM2ANhdcoKwdVa0jWvEsbPFuQpMjf' # Create your own.
-#app.config['SESSION_PROTECTION'] = 'strong'
+app.config['SECRET_KEY'] = 'enydM2ANhdcoKwdVa0mWvEsbPFuQpMjf' # Create your own.
+app.config['SESSION_PROTECTION'] = 'strong'
 #mongo = PyMongo(app)
 
 
@@ -28,6 +32,7 @@ mongo = PyMongo(app)
 login_manager = LoginManager()
 login_manager.setup_app(app)
 login_manager.login_view = 'login'
+LOG = logging.create_logger(app)
 
 @app.route('/')
 def index():
