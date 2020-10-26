@@ -17,11 +17,11 @@ app = Flask(__name__)
 
 app.config['MONGO_DBNAME'] = "foodb"
 app.config['MONGO_URI'] = "mongodb+srv://admin:1234@foodb.6gnje.mongodb.net/foodb?retryWrites=true&w=majority"
-
-
-app.config['SECRET_KEY'] = 'enydM2ANhdcoKwdVa0jWvEsbPFuQpMjf' # Create your own.
-app.config['SESSION_PROTECTION'] = 'strong'
 mongo = PyMongo(app)
+
+#app.config['SECRET_KEY'] = 'enydM2ANhdcoKwdVa0jWvEsbPFuQpMjf' # Create your own.
+#app.config['SESSION_PROTECTION'] = 'strong'
+#mongo = PyMongo(app)
 
 
 # Use Flask-Login to track current user in Flask's session.
